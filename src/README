@@ -1,0 +1,20 @@
+
+This is Lua 5.2.1, released on 08 Jun 2012.
+
+For installation instructions, license details, and
+further information about Lua, see doc/readme.html.
+
+------------------------------------------------------------------------------------------------
+Applied fix: http://www.lua.org/bugs.html#5.2.3-2
+
+lgc.c:
+@@ -403,7 +403,7 @@
+       reallymarkobject(g, gcvalue(gval(n)));  /* mark it now */
+     }
+   }
+-  if (prop)
++  if (g->gcstate != GCSatomic || prop)
+     linktable(h, &g->ephemeron);  /* have to propagate again */
+   else if (hasclears)  /* does table have white keys? */
+     linktable(h, &g->allweak);  /* may have to clean white keys */
+------------------------------------------------------------------------------------------------
