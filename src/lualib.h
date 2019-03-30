@@ -14,17 +14,23 @@
 
 LUAMOD_API int (luaopen_base) (lua_State *L);
 
+#ifdef USE_LUA_COROUTINE
 #define LUA_COLIBNAME	"coroutine"
 LUAMOD_API int (luaopen_coroutine) (lua_State *L);
+#endif
 
 #define LUA_TABLIBNAME	"table"
 LUAMOD_API int (luaopen_table) (lua_State *L);
 
+#ifdef USE_LUA_IO
 #define LUA_IOLIBNAME	"io"
 LUAMOD_API int (luaopen_io) (lua_State *L);
+#endif
 
+#ifdef USE_LUA_OS
 #define LUA_OSLIBNAME	"os"
 LUAMOD_API int (luaopen_os) (lua_State *L);
+#endif
 
 #define LUA_STRLIBNAME	"string"
 LUAMOD_API int (luaopen_string) (lua_State *L);

@@ -112,8 +112,11 @@ static int luaB_getmetatable (lua_State *L) {
 static int luaB_setmetatable (lua_State *L) {
   int t = lua_type(L, 2);
   luaL_checktype(L, 1, LUA_TTABLE);
-  luaL_argcheck(L, t == LUA_TNIL || t == LUA_TTABLE, 2,
-                    "nil or table expected");
+  if (t != LUA_TNIL && t != LUA_TTABLE)
+  {
+    const char* msg = lua_pushfstring(L, "nil or table expected got %s", lua_typename(L, 2));
+    luaL_argerror(L, 2, msg);
+  }
   if (luaL_getmetafield(L, 1, "__metatable"))
     return luaL_error(L, "cannot change a protected metatable");
   lua_settop(L, 2);
@@ -252,7 +255,7 @@ static int load_aux (lua_State *L, int status) {
   }
 }
 
-
+#ifdef USE_LUA_LOADFILE
 static int luaB_loadfile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   const char *mode = luaL_optstring(L, 2, NULL);
@@ -264,7 +267,7 @@ static int luaB_loadfile (lua_State *L) {
   }
   return load_aux(L, status);
 }
-
+#endif
 
 /*
 ** {======================================================
@@ -335,6 +338,7 @@ static int dofilecont (lua_State *L) {
 }
 
 
+#ifdef USE_LUA_DOFILE
 static int luaB_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   lua_settop(L, 1);
@@ -342,7 +346,7 @@ static int luaB_dofile (lua_State *L) {
   lua_callk(L, 0, LUA_MULTRET, 0, dofilecont);
   return dofilecont(L);
 }
-
+#endif
 
 static int luaB_assert (lua_State *L) {
   if (!lua_toboolean(L, 1))
@@ -418,11 +422,15 @@ static int luaB_tostring (lua_State *L) {
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
+#ifdef USE_LUA_DOFILE
   {"dofile", luaB_dofile},
+#endif
   {"error", luaB_error},
   {"getmetatable", luaB_getmetatable},
   {"ipairs", luaB_ipairs},
+#ifdef USE_LUA_LOADFILE
   {"loadfile", luaB_loadfile},
+#endif
   {"load", luaB_load},
 #if defined(LUA_COMPAT_LOADSTRING)
   {"loadstring", luaB_load},

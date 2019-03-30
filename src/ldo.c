@@ -396,6 +396,7 @@ void luaD_call (lua_State *L, StkId func, int nResults, int allowyield) {
   luaC_checkGC(L);
 }
 
+#ifdef USE_LUA_COROUTINE
 
 static void finishCcall (lua_State *L) {
   CallInfo *ci = L->ci;
@@ -578,6 +579,7 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, int ctx, lua_CFunction k) {
   return 0;  /* return to 'luaD_hook' */
 }
 
+#endif // USE_LUA_COROUTINE
 
 int luaD_pcall (lua_State *L, Pfunc func, void *u,
                 ptrdiff_t old_top, ptrdiff_t ef) {

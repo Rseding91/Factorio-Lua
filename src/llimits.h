@@ -47,7 +47,7 @@ typedef unsigned char lu_byte;
 
 /* type to ensure maximum alignment */
 #if !defined(LUAI_USER_ALIGNMENT_T)
-#define LUAI_USER_ALIGNMENT_T	union { double u; void *s; long l; }
+#define LUAI_USER_ALIGNMENT_T	union { double u; void *s; long long l; }
 #endif
 
 typedef LUAI_USER_ALIGNMENT_T L_Umaxalign;

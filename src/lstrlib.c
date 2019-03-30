@@ -867,24 +867,11 @@ static int str_format (lua_State *L) {
           nb = sprintf(buff, form, luaL_checkint(L, arg));
           break;
         }
-        case 'd':  case 'i': {
-          lua_Number n = luaL_checknumber(L, arg);
-          LUA_INTFRM_T ni = (LUA_INTFRM_T)n;
-          lua_Number diff = n - (lua_Number)ni;
-          luaL_argcheck(L, -1 < diff && diff < 1, arg,
-                        "not a number in proper range");
+        case 'd': case 'i':
+        case 'o': case 'u': case 'x': case 'X': {
+          lua_Integer n = luaL_checkinteger(L, arg);
           addlenmod(form, LUA_INTFRMLEN);
-          nb = sprintf(buff, form, ni);
-          break;
-        }
-        case 'o':  case 'u':  case 'x':  case 'X': {
-          lua_Number n = luaL_checknumber(L, arg);
-          unsigned LUA_INTFRM_T ni = (unsigned LUA_INTFRM_T)n;
-          lua_Number diff = n - (lua_Number)ni;
-          luaL_argcheck(L, -1 < diff && diff < 1, arg,
-                        "not a non-negative number in proper range");
-          addlenmod(form, LUA_INTFRMLEN);
-          nb = sprintf(buff, form, ni);
+          nb = sprintf(buff, form, (LUA_INTFRM_T)n);
           break;
         }
         case 'e':  case 'E': case 'f':

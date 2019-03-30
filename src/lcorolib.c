@@ -16,6 +16,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#ifdef USE_LUA_COROUTINE
 
 static int auxresume (lua_State *L, lua_State *co, int narg) {
   int status;
@@ -152,4 +153,4 @@ LUAMOD_API int luaopen_coroutine (lua_State *L) {
   luaL_newlib(L, co_funcs);
   return 1;
 }
-
+#endif

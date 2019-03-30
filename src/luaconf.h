@@ -150,7 +150,11 @@
 
 #else				/* }{ */
 
-#define LUA_API		extern
+#ifdef __cplusplus
+#define LUA_API		extern "C"
+#else
+#define LUA_API
+#endif
 
 #endif				/* } */
 

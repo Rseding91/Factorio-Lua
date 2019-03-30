@@ -28,11 +28,19 @@
 */
 static const luaL_Reg loadedlibs[] = {
   {"_G", luaopen_base},
+#ifdef USE_LUA_PACKAGE
   {LUA_LOADLIBNAME, luaopen_package},
+#endif
+#ifdef USE_LUA_COROUTINE
   {LUA_COLIBNAME, luaopen_coroutine},
+#endif
   {LUA_TABLIBNAME, luaopen_table},
+#ifdef USE_LUA_IO
   {LUA_IOLIBNAME, luaopen_io},
+#endif
+#ifdef USE_LUA_OS
   {LUA_OSLIBNAME, luaopen_os},
+#endif
   {LUA_STRLIBNAME, luaopen_string},
   {LUA_BITLIBNAME, luaopen_bit32},
   {LUA_MATHLIBNAME, luaopen_math},

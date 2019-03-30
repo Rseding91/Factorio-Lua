@@ -161,6 +161,7 @@ LUA_API int             (lua_iscfunction) (lua_State *L, int idx);
 LUA_API int             (lua_isuserdata) (lua_State *L, int idx);
 LUA_API int             (lua_type) (lua_State *L, int idx);
 LUA_API const char     *(lua_typename) (lua_State *L, int tp);
+LUA_API const char     *(lua_getstring) (lua_State *L, int idx, size_t *len);
 
 LUA_API lua_Number      (lua_tonumberx) (lua_State *L, int idx, int *isnum);
 LUA_API lua_Integer     (lua_tointegerx) (lua_State *L, int idx, int *isnum);
@@ -263,6 +264,7 @@ LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
 
 LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data);
 
+#ifdef USE_LUA_COROUTINE
 
 /*
 ** coroutine functions
@@ -272,6 +274,8 @@ LUA_API int  (lua_yieldk) (lua_State *L, int nresults, int ctx,
 #define lua_yield(L,n)		lua_yieldk(L, (n), 0, NULL)
 LUA_API int  (lua_resume) (lua_State *L, lua_State *from, int narg);
 LUA_API int  (lua_status) (lua_State *L);
+
+#endif // USE_LUA_COROUTINE
 
 /*
 ** garbage-collection function and options
@@ -304,6 +308,7 @@ LUA_API int   (lua_next) (lua_State *L, int idx);
 LUA_API void  (lua_concat)     (lua_State *L, int n);
 LUA_API void  (lua_len)        (lua_State *L, int idx);
 LUA_API int   (lua_tablesize)  (lua_State *L, int idx, int fuzzy);
+LUA_API int   (lua_getnparams) (lua_State *L, int idx);
 LUA_API void (lua_tableresize) (lua_State *L, int idx, int narr, int nrec);
 LUA_API int  (lua_isvalidIndex)(lua_State *L, int idx);
 
@@ -442,6 +447,5 @@ struct lua_Debug {
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
-
 
 #endif

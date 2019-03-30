@@ -20,6 +20,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         -DLUA_USE_LONGLONG
 )
 
+if (ENABLE_LUA_DEBUGGER)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC
+            -DUSE_LUA_IO
+            -DUSE_LUA_COROUTINE
+    )
+endif()
+
 target_compile_options(${PROJECT_NAME} PRIVATE
         -include ${CMAKE_CURRENT_SOURCE_DIR}/override_printf.h
         -x c++

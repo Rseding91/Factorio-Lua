@@ -357,6 +357,15 @@ LUA_API int lua_compare (lua_State *L, int index1, int index2, int op) {
   return i;
 }
 
+LUA_API const char *lua_getstring (lua_State *L, int idx, size_t *len) {
+  StkId o = index2addr(L, idx);
+  if (ttisstring(o)) {
+    if (len != NULL) *len = tsvalue(o)->len;
+    return svalue(o);
+  }
+  return  NULL;
+}
+
 
 LUA_API lua_Number lua_tonumberx (lua_State *L, int idx, int *isnum) {
   TValue n;
@@ -1230,6 +1239,24 @@ LUA_API int lua_tablesize(lua_State *L, int idx, int fuzzy) {
   t = index2addr(L, idx);
   api_check(L, ttistable(t), "table expected");
   result = luaH_size(hvalue(t), fuzzy);
+  lua_unlock(L);
+  return result;
+}
+
+LUA_API int lua_getnparams(lua_State *L, int idx) {
+  lua_lock(L);
+  StkId f = index2addr(L, idx);
+  api_check(L, ttisfunction(f), "function expected");
+
+  int result = -1;
+
+  if (ttisLclosure(f))
+  {
+    Proto* proto = clLvalue(f)->p;
+    if (!proto->is_vararg)
+      result = proto->numparams;
+  }
+
   lua_unlock(L);
   return result;
 }
