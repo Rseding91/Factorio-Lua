@@ -553,7 +553,7 @@ void luaV_execute (lua_State *L) {
     /* WARNING: several calls may realloc the stack and invalidate `ra' */
     ra = RA(i);
     lua_assert(base == ci->u.l.base);
-    lua_assert(base <= L->top && L->top < L->stack + L->stack_size);
+    lua_assert(base <= L->top && L->top < L->stack + L->stacksize);
     vmdispatch (GET_OPCODE(i)) {
       vmcase(OP_MOVE,
         setobjs2s(L, ra, RB(i));
@@ -746,7 +746,7 @@ void luaV_execute (lua_State *L) {
           oci->u.l.savedpc = nci->u.l.savedpc;
           oci->callstatus |= CIST_TAIL;  /* function was tail called */
           ci = L->ci = oci;  /* remove new frame */
-          lua_assert(L->top == oci->u.l.base + getproto(ofunc)->maxstack_size);
+          lua_assert(L->top == oci->u.l.base + getproto(ofunc)->maxstacksize);
           goto newframe;  /* restart luaV_execute over new Lua function */
         }
       )
@@ -821,12 +821,13 @@ void luaV_execute (lua_State *L) {
         }
         luai_runtimecheck(L, ttistable(ra));
         h = hvalue(ra);
+        int first = (c - 1) * LFIELDS_PER_FLUSH;
         last = ((c-1)*LFIELDS_PER_FLUSH) + n;
         if (last > h->sizearray)  /* needs more space? */
           luaH_resizearray(L, h, last);  /* pre-allocate it at once */
-        for (; n > 0; n--) {
-          TValue *val = ra+n;
-          luaH_setint(L, h, last--, val);
+        for (int ii = 0; ii < n; ++ii) {
+          TValue* val = ra + ii + 1;
+          luaH_setint(L, h, first + ii + 1, val);
           luaC_barrierback(L, obj2gco(h), val);
         }
         L->top = ci->top;  /* correct top (in case of previous open call) */
@@ -865,4 +866,3 @@ void luaV_execute (lua_State *L) {
     }
   }
 }
-

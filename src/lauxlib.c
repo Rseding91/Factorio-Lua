@@ -153,7 +153,7 @@ LUALIB_API void luaL_traceback (lua_State *L, lua_State *L1,
 LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
   lua_Debug ar;
   if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
-    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
+    return luaL_error(L, "bad argument #%d of %d (%s)", narg < 0 ? narg + lua_gettop(L) + 1 : narg, lua_gettop(L), extramsg);
   lua_getinfo(L, "n", &ar);
   if (strcmp(ar.namewhat, "method") == 0) {
     narg--;  /* do not count `self' */
@@ -162,8 +162,8 @@ LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
   }
   if (ar.name == NULL)
     ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : "?";
-  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
-                        narg, ar.name, extramsg);
+  return luaL_error(L, "bad argument #%d of %d to " LUA_QS " (%s)",
+                        narg < 0 ? narg + lua_gettop(L) + 1 : narg, lua_gettop(L), ar.name, extramsg);
 }
 
 
@@ -747,8 +747,8 @@ LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
         lua_pushliteral(L, "nil");
         break;
       default:
-        lua_pushfstring(L, "%s: %p", luaL_typename(L, idx),
-                                            lua_topointer(L, idx));
+        // Don't ever convert pointers to strings since they're not-deterministic
+        lua_pushfstring(L, "%s", luaL_typename(L, idx));
         break;
     }
   }

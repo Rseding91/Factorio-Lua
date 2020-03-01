@@ -540,7 +540,7 @@ static void open_func (LexState *ls, FuncState *fs, BlockCnt *bl) {
   fs->bl = NULL;
   f = fs->f;
   f->source = ls->source;
-  f->maxstack_size = 2;  /* registers 0/1 are always valid */
+  f->maxstacksize = 2;  /* registers 0/1 are always valid */
   fs->h = luaH_new(L);
   /* anchor table of constants (to avoid being collected) */
   sethvalue2s(L, L->top, fs->h);
@@ -1585,7 +1585,7 @@ static void statement (LexState *ls) {
       break;
     }
   }
-  lua_assert(ls->fs->f->maxstack_size >= ls->fs->freereg &&
+  lua_assert(ls->fs->f->maxstacksize >= ls->fs->freereg &&
              ls->fs->freereg >= ls->fs->nactvar);
   ls->fs->freereg = ls->fs->nactvar;  /* free registers */
   leavelevel(ls);
@@ -1632,4 +1632,3 @@ Closure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
   lua_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0);
   return cl;  /* it's on the stack too */
 }
-
