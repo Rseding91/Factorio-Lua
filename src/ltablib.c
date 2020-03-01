@@ -14,7 +14,7 @@
 
 #include "lauxlib.h"
 #include "lualib.h"
-
+#include <string.h>
 
 #define aux_getn(L,n)  \
 	(luaL_checktype(L, n, LUA_TTABLE), luaL_len(L, n))
@@ -106,6 +106,91 @@ static int tconcat (lua_State *L) {
   if (i == last)  /* add last value (if interval was not empty) */
     addfield(L, &b, i);
   luaL_pushresult(&b);
+  return 1;
+}
+
+typedef struct luaL_SaneBuffer
+{
+  char* b;  /* buffer address */
+  size_t size;  /* buffer size */
+  size_t n;  /* number of characters in buffer */
+  int stackindex; /* the reserved stack index for storing buffer data that doesn't fit in the initial buffer */
+  char initb[LUAL_BUFFERSIZE];  /* initial buffer */
+} luaL_SaneBuffer;
+
+static void luaL_init_SaneBuffer(lua_State* L, luaL_SaneBuffer* B)
+{
+  B->b = B->initb;
+  B->n = 0;
+  B->size = LUAL_BUFFERSIZE;
+
+  lua_pushnil(L); /* reserve stack space */
+  B->stackindex = lua_gettop(L);
+}
+
+static void luaL_destroy_SaneBuffer(lua_State* L, luaL_SaneBuffer* B)
+{
+  lua_remove(L, B->stackindex); /* remove reserved stack space */
+}
+
+static char* luaL_prep_SaneBuffer_size (lua_State* L, luaL_SaneBuffer* B, size_t sz)
+{
+  if (B->size - B->n < sz)
+  {  /* not enough space? */
+    size_t newsize = B->size * 2;  /* double buffer size */
+    if (newsize - B->n < sz)  /* not bit enough? */
+      newsize = B->n + sz;
+    if (newsize < B->n || newsize - B->n < sz)
+      luaL_error(L, "buffer too large");
+    /* create larger buffer */
+    char* newbuff = (char *)lua_newuserdata(L, newsize * sizeof(char));
+    /* move content to new buffer */
+    memcpy(newbuff, B->b, B->n * sizeof(char));
+    lua_replace(L, B->stackindex);  /* remove old buffer */
+    B->b = newbuff;
+    B->size = newsize;
+  }
+
+  return &B->b[B->n];
+}
+
+
+static void luaL_add_lstring (lua_State* L, luaL_SaneBuffer* B, const char* s, size_t l)
+{
+  char* b = luaL_prep_SaneBuffer_size(L,  B, l);
+  memcpy(b, s, l * sizeof(char));
+  B->n += l;
+}
+
+static int tpairsconcat (lua_State *L)
+{
+  size_t lsep;
+  const char *sep = luaL_optlstring(L, 2, "", &lsep);
+  luaL_checktype(L, 1, LUA_TTABLE);
+  luaL_SaneBuffer b;
+  luaL_init_SaneBuffer(L, &b);
+  int added = 0;
+
+  lua_pushnil(L);
+  while (lua_next(L, 1))
+  {
+    if (!lua_isstring(L, -1))
+      luaL_error(L, "invalid value (%s) in table for " LUA_QL("pairs_concat"), luaL_typename(L, -1));
+
+    if (added)
+      luaL_add_lstring(L, &b, sep, lsep);
+
+    size_t l;
+    const char* s = lua_tolstring(L, -1, &l); /* get value as string */
+    luaL_add_lstring(L, &b, s, l);
+    lua_remove(L, -1);  /* remove value */
+
+    added = 1;
+  }
+
+  lua_pushlstring(L, b.b, b.n);
+  luaL_destroy_SaneBuffer(L, &b);
+
   return 1;
 }
 
@@ -259,6 +344,7 @@ static int sort (lua_State *L) {
 
 static const luaL_Reg tab_funcs[] = {
   {"concat", tconcat},
+  {"pairs_concat", tpairsconcat},
 #if defined(LUA_COMPAT_MAXN)
   {"maxn", maxn},
 #endif

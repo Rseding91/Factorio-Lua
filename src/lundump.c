@@ -174,7 +174,7 @@ static void LoadFunction(LoadState* S, Proto* f)
  f->lastlinedefined=LoadInt(S);
  f->numparams=LoadByte(S);
  f->is_vararg=LoadByte(S);
- f->maxstack_size=LoadByte(S);
+ f->maxstacksize=LoadByte(S);
  LoadCode(S,f);
  LoadConstants(S,f);
  LoadUpvalues(S,f);

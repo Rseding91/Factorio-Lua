@@ -501,32 +501,32 @@
 
 //#define MS_ASMTRICK
 #define LUA_IEEEENDIAN		0
-#define LUA_NANTRICK
+//#define LUA_NANTRICK
 
 
 /* pentium 32 bits? */
 #elif defined(__i386__) || defined(__i386) || defined(__X86__) /* }{ */
 
-#define LUA_IEEE754TRICK
+//#define LUA_IEEE754TRICK
 #define LUA_IEEELL
 #define LUA_IEEEENDIAN		0
-#define LUA_NANTRICK
+//#define LUA_NANTRICK
 
 /* pentium 64 bits? */
 #elif defined(__x86_64)						/* }{ */
 
-#define LUA_IEEE754TRICK
+//#define LUA_IEEE754TRICK
 #define LUA_IEEEENDIAN		0
 
 #elif defined(__POWERPC__) || defined(__ppc__)			/* }{ */
 
-#define LUA_IEEE754TRICK
+//#define LUA_IEEE754TRICK
 #define LUA_IEEEENDIAN		1
 
 #else								/* }{ */
 
 /* assume IEEE754 and a 32-bit integer type */
-#define LUA_IEEE754TRICK
+//#define LUA_IEEE754TRICK
 
 #endif								/* } */
 
