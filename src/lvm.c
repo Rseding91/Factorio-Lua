@@ -292,7 +292,10 @@ int luaV_equalobj_ (lua_State *L, const TValue *t1, const TValue *t2) {
 
 
 void luaV_concat (lua_State *L, int total) {
-  lua_assert(total >= 2);
+  if (total < 2)
+  {
+    luaG_runerror(L, "attempted to CONCAT less than 2 values (%d)", total);
+  }
   do {
     StkId top = L->top;
     int n = 2;  /* number of elements handled in this pass (at least 2) */
@@ -766,6 +769,8 @@ void luaV_execute (lua_State *L) {
         }
       )
       vmcase(OP_FORLOOP,
+        if (!ttisnumber(ra+1) | !ttisnumber(ra)) /* not checking ra+2, because I don't see way how to exploit it not being number */
+          luaG_runerror(L, LUA_QL("for") " bytecode error, control variables need to be numbers");
         lua_Number step = nvalue(ra+2);
         lua_Number idx = luai_numadd(L, nvalue(ra), step); /* increment index */
         lua_Number limit = nvalue(ra+1);
@@ -799,10 +804,15 @@ void luaV_execute (lua_State *L) {
         L->top = ci->top;
         i = *(ci->u.l.savedpc++);  /* go to next instruction */
         ra = RA(i);
-        lua_assert(GET_OPCODE(i) == OP_TFORLOOP);
+        if (GET_OPCODE(i) != OP_TFORLOOP)
+        {
+          luaG_runerror(L, LUA_QL("TFORCALL") " must be followed by " LUA_QL("TFORLOOP"));
+        }
         goto l_tforloop;
       )
       vmcase(OP_TFORLOOP,
+        // this will only run if a TFORLOOP occurs without its paired TFORCALL
+        luaG_runerror(L, LUA_QL("TFORLOOP") " must be preceeded by " LUA_QL("TFORCALL"));
         l_tforloop:
         if (!ttisnil(ra + 1)) {  /* continue loop? */
           setobjs2s(L, ra, ra + 1);  /* save control variable */
@@ -819,7 +829,10 @@ void luaV_execute (lua_State *L) {
           lua_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_EXTRAARG);
           c = GETARG_Ax(*ci->u.l.savedpc++);
         }
-        luai_runtimecheck(L, ttistable(ra));
+        if (!ttistable(ra))
+        {
+          luaG_runerror(L, LUA_QL("SETLIST") " arg " LUA_QL("A") " must be a table");
+        }
         h = hvalue(ra);
         int first = (c - 1) * LFIELDS_PER_FLUSH;
         last = ((c-1)*LFIELDS_PER_FLUSH) + n;
@@ -861,7 +874,9 @@ void luaV_execute (lua_State *L) {
         }
       )
       vmcase(OP_EXTRAARG,
-        lua_assert(0);
+        // this will only occur if EXTRAARG appears on its own, rather than correctly paired with
+        // an instruction using C=0 to use an EXTRAARG, which would skip it
+        luaG_runerror(L, "attempted to execute " LUA_QL("EXTRAARG"));
       )
     }
   }

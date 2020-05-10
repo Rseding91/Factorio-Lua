@@ -5,6 +5,7 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#include <Lua/LuaCPPUtilities.hpp>
 
 #ifdef WIN32
 #pragma comment(linker, "/export:luaL_addlstring")
