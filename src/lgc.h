@@ -66,11 +66,11 @@
 #define resetbits(x,m)		((x) &= cast(lu_byte, ~(m)))
 #define setbits(x,m)		((x) |= (m))
 #define testbits(x,m)		((x) & (m))
-#define bitmask(b)		(1<<(b))
-#define bit2mask(b1,b2)		(bitmask(b1) | bitmask(b2))
-#define l_setbit(x,b)		setbits(x, bitmask(b))
-#define resetbit(x,b)		resetbits(x, bitmask(b))
-#define testbit(x,b)		testbits(x, bitmask(b))
+#define BITMASK(b)		(1<<(b))
+#define bit2mask(b1,b2)		(BITMASK(b1) | BITMASK(b2))
+#define l_setbit(x,b)		setbits(x, BITMASK(b))
+#define resetbit(x,b)		resetbits(x, BITMASK(b))
+#define testbit(x,b)		testbits(x, BITMASK(b))
 
 
 /* Layout for bit use in `marked' field: */
@@ -89,7 +89,7 @@
 #define iswhite(x)      testbits((x)->gch.marked, WHITEBITS)
 #define isblack(x)      testbit((x)->gch.marked, BLACKBIT)
 #define isgray(x)  /* neither white nor black */  \
-	(!testbits((x)->gch.marked, WHITEBITS | bitmask(BLACKBIT)))
+	(!testbits((x)->gch.marked, WHITEBITS | BITMASK(BLACKBIT)))
 
 #define isold(x)	testbit((x)->gch.marked, OLDBIT)
 

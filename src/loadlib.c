@@ -497,7 +497,7 @@ static void findloader (lua_State *L, const char *name) {
     lua_call(L, 1, 2);  /* call it */
     if (lua_isfunction(L, -2))  /* did it find a loader? */
       return;  /* module loader found */
-    else if (lua_isstring(L, -2)) {  /* searcher returned error message? */
+    else if (lua_isstringornumberconvertabletostring(L, -2)) {  /* searcher returned error message? */
       lua_pop(L, 1);  /* remove extra return */
       luaL_addvalue(&msg);  /* concatenate error message */
     }

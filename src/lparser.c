@@ -745,6 +745,12 @@ static void constructor (LexState *ls, expdesc *t) {
   } while (testnext(ls, ',') || testnext(ls, ';'));
   check_match(ls, '}', '{', line);
   lastlistfield(fs, &cc);
+  // array part size is limited, so transfer pre-allocation size to hash part
+  if (cc.na > (1 << LUA_MAX_SEQUENTIAL_ARRAY_SIZE_BITS))
+  {
+    cc.nh += cc.na - (1 << LUA_MAX_SEQUENTIAL_ARRAY_SIZE_BITS);
+    cc.na = (1 << LUA_MAX_SEQUENTIAL_ARRAY_SIZE_BITS);
+  }
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
   SETARG_C(fs->f->code[pc], luaO_int2fb(cc.nh));  /* set initial table size */
 }

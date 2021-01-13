@@ -834,15 +834,10 @@ void luaV_execute (lua_State *L) {
           luaG_runerror(L, LUA_QL("SETLIST") " arg " LUA_QL("A") " must be a table");
         }
         h = hvalue(ra);
-        int first = (c - 1) * LFIELDS_PER_FLUSH;
-        last = ((c-1)*LFIELDS_PER_FLUSH) + n;
-        if (last > h->sizearray)  /* needs more space? */
-          luaH_resizearray(L, h, last);  /* pre-allocate it at once */
-        for (int ii = 0; ii < n; ++ii) {
-          TValue* val = ra + ii + 1;
-          luaH_setint(L, h, first + ii + 1, val);
-          luaC_barrierback(L, obj2gco(h), val);
-        }
+        int first = (c - 1) * LFIELDS_PER_FLUSH + 1;
+
+        luaH_setlist(L, h, first, ra + 1, n);
+
         L->top = ci->top;  /* correct top (in case of previous open call) */
       )
       vmcase(OP_CLOSURE,

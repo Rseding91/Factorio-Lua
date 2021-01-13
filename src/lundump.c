@@ -327,6 +327,8 @@ static TString* LoadString(LoadState* S)
 static void LoadCode(LoadState* S, Proto* f)
 {
  int n=LoadInt(S);
+ // minimum function size is 1: a single OP_RET
+ bytecode_assert(S, n>0);
  f->code=luaM_newvector(S->L,n,Instruction);
  f->sizecode=n;
  LoadVector(S,f->code,n,sizeof(Instruction));
@@ -348,18 +350,24 @@ static void LoadConstants(LoadState* S, Proto* f)
   switch (t)
   {
    case LUA_TNIL:
-	setnilvalue(o);
-	break;
+    setnilvalue(o);
+    break;
    case LUA_TBOOLEAN:
-	setbvalue(o,LoadChar(S));
-	break;
+    setbvalue(o,LoadChar(S));
+    break;
    case LUA_TNUMBER:
-	setnvalue(o,LoadNumber(S));
-	break;
+    setnvalue(o,LoadNumber(S));
+    break;
    case LUA_TSTRING:
-	setsvalue2n(S->L,o,LoadString(S));
-	break;
-    default: lua_assert(0);
+    {
+     TString* str = LoadString(S);
+     // Valid constant table will never have 0:"" nostring, only 1:"\0" emptystring or n:"somerealstring\0"
+     bytecode_assert(S, str);
+     setsvalue2n(S->L, o, str);
+    }
+    break;
+   default:
+     bytecode_assert(S, 0);
   }
  }
  n=LoadInt(S);

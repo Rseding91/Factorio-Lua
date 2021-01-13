@@ -155,8 +155,8 @@ LUA_API void  (lua_xmove) (lua_State *from, lua_State *to, int n);
 ** access functions (stack -> C)
 */
 
-LUA_API int             (lua_isnumber) (lua_State *L, int idx);
-LUA_API int             (lua_isstring) (lua_State *L, int idx);
+LUA_API int             (lua_isnumberorstringconvertabletonumber) (lua_State *L, int idx);
+LUA_API int             (lua_isstringornumberconvertabletostring) (lua_State *L, int idx);
 LUA_API int             (lua_iscfunction) (lua_State *L, int idx);
 LUA_API int             (lua_isuserdata) (lua_State *L, int idx);
 LUA_API int             (lua_type) (lua_State *L, int idx);
@@ -227,6 +227,7 @@ LUA_API void  (lua_getlfield) (lua_State *L, int idx, const char *k, size_t l);
 LUA_API void  (lua_rawget) (lua_State *L, int idx);
 LUA_API void  (lua_rawgeti) (lua_State *L, int idx, int n);
 LUA_API void  (lua_rawgetp) (lua_State *L, int idx, const void *p);
+LUA_API void  (lua_rawgetglobal) (lua_State *L, const char *var);
 LUA_API void  (lua_createtable) (lua_State *L, int narr, int nrec);
 LUA_API void *(lua_newuserdata) (lua_State *L, size_t sz);
 LUA_API int   (lua_getmetatable) (lua_State *L, int objindex);

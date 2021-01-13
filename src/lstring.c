@@ -65,7 +65,7 @@ void luaS_resize (lua_State *L, int newsize) {
   int i;
   stringtable *tb = &G(L)->strt;
   /* cannot resize while GC is traversing strings */
-  luaC_runtilstate(L, ~bitmask(GCSsweepstring));
+  luaC_runtilstate(L, ~BITMASK(GCSsweepstring));
   if (newsize > tb->size) {
     luaM_reallocvector(L, tb->hash, tb->size, newsize, GCObject *);
     for (i = tb->size; i < newsize; i++) tb->hash[i] = NULL;

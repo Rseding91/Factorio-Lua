@@ -732,8 +732,8 @@ static GCObject **sweeplist (lua_State *L, GCObject** list, GCObject **p, lu_mem
   int tostop;  /* stop sweep when this is true */
   if (isgenerational(g)) {  /* generational mode? */
     toclear = ~0;  /* clear nothing */
-    toset = bitmask(OLDBIT);  /* set the old bit of all surviving objects */
-    tostop = bitmask(OLDBIT);  /* do not sweep old generation */
+    toset = BITMASK(OLDBIT);  /* set the old bit of all surviving objects */
+    tostop = BITMASK(OLDBIT);  /* do not sweep old generation */
   }
   else {  /* normal mode */
     toclear = maskcolors;  /* clear all color bits + old bit */
@@ -934,7 +934,7 @@ void luaC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
 
 
 #define sweepphases  \
-	(bitmask(GCSsweepstring) | bitmask(GCSsweepudata) | bitmask(GCSsweep))
+	(BITMASK(GCSsweepstring) | BITMASK(GCSsweepudata) | BITMASK(GCSsweep))
 
 
 /*
@@ -972,7 +972,7 @@ void luaC_changemode (lua_State *L, int mode) {
   if (mode == g->gckind) return;  /* nothing to change */
   if (mode == KGC_GEN) {  /* change to generational mode */
     /* make sure gray lists are consistent */
-    luaC_runtilstate(L, bitmask(GCSpropagate));
+    luaC_runtilstate(L, BITMASK(GCSpropagate));
     g->GCestimate = gettotalbytes(g);
     g->gckind = KGC_GEN;
   }
@@ -1143,8 +1143,8 @@ static void generationalcollection (lua_State *L) {
   }
   else {
     lu_mem estimate = g->GCestimate;
-    luaC_runtilstate(L, ~bitmask(GCSpause));  /* run complete cycle */
-    luaC_runtilstate(L, bitmask(GCSpause));
+    luaC_runtilstate(L, ~BITMASK(GCSpause));  /* run complete cycle */
+    luaC_runtilstate(L, BITMASK(GCSpause));
     if (gettotalbytes(g) > (estimate / 100) * g->gcmajorinc)
       g->GCestimate = 0;  /* signal for a major collection */
   }
@@ -1218,13 +1218,13 @@ void luaC_fullgc (lua_State *L, int isemergency) {
     entersweep(L);
   }
   /* finish any pending sweep phase to start a new cycle */
-  luaC_runtilstate(L, bitmask(GCSpause));
+  luaC_runtilstate(L, BITMASK(GCSpause));
   /* run entire collector */
-  luaC_runtilstate(L, ~bitmask(GCSpause));
-  luaC_runtilstate(L, bitmask(GCSpause));
+  luaC_runtilstate(L, ~BITMASK(GCSpause));
+  luaC_runtilstate(L, BITMASK(GCSpause));
   if (origkind == KGC_GEN) {  /* generational mode? */
     /* generational mode must always start in propagate phase */
-    luaC_runtilstate(L, bitmask(GCSpropagate));
+    luaC_runtilstate(L, BITMASK(GCSpropagate));
   }
   g->gckind = origkind;
   luaE_setdebt(g, stddebt(g));

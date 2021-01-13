@@ -290,14 +290,14 @@ LUA_API int lua_iscfunction (lua_State *L, int idx) {
 }
 
 
-LUA_API int lua_isnumber (lua_State *L, int idx) {
+LUA_API int lua_isnumberorstringconvertabletonumber (lua_State *L, int idx) {
   TValue n;
   const TValue *o = index2addr(L, idx);
   return tonumber(o, &n);
 }
 
 
-LUA_API int lua_isstring (lua_State *L, int idx) {
+LUA_API int lua_isstringornumberconvertabletostring (lua_State *L, int idx) {
   int t = lua_type(L, idx);
   return (t == LUA_TSTRING || t == LUA_TNUMBER);
 }
@@ -690,6 +690,16 @@ LUA_API void lua_getglobal (lua_State *L, const char *var) {
   lua_unlock(L);
 }
 
+LUA_API void lua_rawgetglobal (lua_State *L, const char *var) {
+  Table *reg = hvalue(&G(L)->l_registry);
+  const TValue *gt;  /* global table */
+  lua_lock(L);
+  checkstack_locked(L, 1);
+  gt = luaH_getint(L, reg, LUA_RIDX_GLOBALS);
+  setsvalue2s(L, L->top++, luaS_new(L, var));
+  setobj2s(L, L->top - 1, luaH_get(L, hvalue(gt), L->top - 1));
+  lua_unlock(L);
+}
 
 LUA_API void lua_gettable (lua_State *L, int idx) {
   StkId t;

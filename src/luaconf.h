@@ -428,11 +428,13 @@
 @@ The luai_num* macros define the primitive operations over numbers.
 */
 
+double custom_pow(double a, double b);
+
 /* the following operations need the math library */
 #if defined(lobject_c) || defined(lvm_c)
 #include <math.h>
 #define luai_nummod(L,a,b)	((a) - floor((a)/(b))*(b))
-#define luai_numpow(L,a,b)	(pow(a,b))
+#define luai_numpow(L,a,b)	(custom_pow(a,b))
 #endif
 
 /* these are quite standard operations */

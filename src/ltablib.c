@@ -83,7 +83,7 @@ static int tremove (lua_State *L) {
 
 static void addfield (lua_State *L, luaL_Buffer *b, int i) {
   lua_rawgeti(L, 1, i);
-  if (!lua_isstring(L, -1))
+  if (!lua_isstringornumberconvertabletostring(L, -1))
     luaL_error(L, "invalid value (%s) at index %d in table for "
                   LUA_QL("concat"), luaL_typename(L, -1), i);
   luaL_addvalue(b);
@@ -174,7 +174,7 @@ static int tpairsconcat (lua_State *L)
   lua_pushnil(L);
   while (lua_next(L, 1))
   {
-    if (!lua_isstring(L, -1))
+    if (!lua_isstringornumberconvertabletostring(L, -1))
       luaL_error(L, "invalid value (%s) in table for " LUA_QL("pairs_concat"), luaL_typename(L, -1));
 
     if (added)

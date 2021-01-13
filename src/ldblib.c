@@ -117,7 +117,7 @@ static int db_getinfo (lua_State *L) {
   int arg;
   lua_State *L1 = getthread(L, &arg);
   const char *options = luaL_optstring(L, arg+2, "flnStu");
-  if (lua_isnumber(L, arg+1)) {
+  if (lua_isnumberorstringconvertabletonumber(L, arg+1)) {
     if (!lua_getstack(L1, (int)lua_tointeger(L, arg+1), &ar)) {
       lua_pushnil(L);  /* level out of range */
       return 1;
@@ -160,7 +160,6 @@ static int db_getinfo (lua_State *L) {
     treatstackoption(L, L1, "func");
   return 1;  /* return table */
 }
-
 
 static int db_getlocal (lua_State *L) {
   int arg;
@@ -209,6 +208,8 @@ static int auxupvalue (lua_State *L, int get) {
   const char *name;
   int n = luaL_checkint(L, 2);
   luaL_checktype(L, 1, LUA_TFUNCTION);
+  if (!get && lua_iscfunction(L, 1))
+    luaL_error(L, "Cannot set upvalue of C function");
   name = get ? lua_getupvalue(L, 1, n) : lua_setupvalue(L, 1, n);
   if (name == NULL) return 0;
   lua_pushstring(L, name);
