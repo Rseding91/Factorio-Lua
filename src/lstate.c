@@ -303,6 +303,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->uvhead.u.l.prev = &g->uvhead;
   g->uvhead.u.l.next = &g->uvhead;
   g->gcrunning = 0;  /* no GC while building state */
+  g->gcblocked = 0;
   g->GCestimate = 0;
   g->strt.size = 0;
   g->strt.nuse = 0;

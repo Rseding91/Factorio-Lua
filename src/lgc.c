@@ -828,13 +828,20 @@ static void GCTM (lua_State *L, int propagateerrors) {
     int status;
     lu_byte oldah = L->allowhook;
     int running  = g->gcrunning;
+    int gcblocked = g->gcblocked;
     L->allowhook = 0;  /* stop debug hooks during GC metamethod */
     g->gcrunning = 0;  /* avoid GC steps */
+    g->gcblocked = 1;  /* Extra lock to prevent gcrunning set by calling garbagecollect within __gc */
+
     setobj2s(L, L->top, tm);  /* push finalizer... */
     setobj2s(L, L->top + 1, &v);  /* ... and its argument */
     L->top += 2;  /* and (next line) call the finalizer */
     status = luaD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
+
     L->allowhook = oldah;  /* restore hooks */
+    assert(g->gcrunning == 0);
+    assert(g->gcblocked == 1);
+    g->gcblocked = gcblocked;
     g->gcrunning = running;  /* restore state */
     if (status != LUA_OK && propagateerrors) {  /* error while running __gc? */
       if (status == LUA_ERRRUN) {  /* is there an error object? */
@@ -1191,7 +1198,7 @@ void luaC_forcestep (lua_State *L) {
 */
 void luaC_step (lua_State *L) {
   global_State *g = G(L);
-  if (g->gcrunning) luaC_forcestep(L);
+  if (g->gcrunning && !g->gcblocked) luaC_forcestep(L);
   else luaE_setdebt(g, -GCSTEPSIZE);  /* avoid being called too often */
 }
 

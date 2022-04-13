@@ -78,14 +78,14 @@ void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
   size_t realosize = (block) ? osize : 0;
   lua_assert((realosize == 0) == (block == NULL));
 #if defined(HARDMEMTESTS)
-  if (nsize > realosize && g->gcrunning)
+  if (nsize > realosize && g->gcrunning && !g->gcblocked)
     luaC_fullgc(L, 1);  /* force a GC whenever possible */
 #endif
   newblock = (*g->frealloc)(g->ud, block, osize, nsize);
   if (newblock == NULL && nsize > 0) {
     api_check(L, nsize > realosize,
                  "realloc cannot fail when shrinking a block");
-    if (g->gcrunning) {
+    if (g->gcrunning && !g->gcblocked) {
       luaC_fullgc(L, 1);  /* try to free some memory... */
       newblock = (*g->frealloc)(g->ud, block, osize, nsize);  /* try again */
     }

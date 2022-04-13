@@ -380,6 +380,7 @@ Table *luaH_new (lua_State *L) {
   Table *t = &luaC_newobj(L, LUA_TTABLE, sizeof(Table), NULL, 0)->h;
   t->metatable = NULL;
   t->flags = cast_byte(~0);
+  t->customflags = 0;
   t->array = NULL;
   t->sizearray = 0;
   t->firstadded = NULL;
@@ -538,7 +539,12 @@ const TValue *luaH_get (lua_State *L, Table *t, const TValue *key) {
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);
-      lua_number2int(k, n);
+      if (n > nextafter(INT_MAX, 0.0))
+        k = INT_MAX;
+      else if (n < nextafter(INT_MIN, -0.0))
+        k = INT_MIN;
+      else
+        lua_number2int(k, n);
       if (luai_numeq(cast_num(k), nvalue(key))) /* index is int? */
         return luaH_getint(L, t, k);  /* use specialized version */
       /* else go through */

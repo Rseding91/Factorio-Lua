@@ -122,7 +122,8 @@ typedef struct global_State {
   lu_byte currentwhite;
   lu_byte gcstate;  /* state of garbage collector */
   lu_byte gckind;  /* kind of GC running */
-  lu_byte gcrunning;  /* true if GC is running */
+  lu_byte gcrunning;  /* true if GC is running. This is must be considered "script can change any time" */
+  lu_byte gcblocked;  /* Safety flag to prevent evading gcrunning flag clear by GCTM - cannot be changed by script by any means */
   int sweepstrgc;  /* position of sweep in `strt' */
   GCObject *allgc;  /* list of all collectable objects */
   GCObject *finobj;  /* list of collectable objects with finalizers */

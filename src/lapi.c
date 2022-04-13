@@ -1167,6 +1167,12 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
   global_State *g;
   lua_lock(L);
   g = G(L);
+  if (g->gcblocked)
+  {
+    lua_unlock(L);
+    return -1; // Not now
+  }
+
   switch (what) {
     case LUA_GCSTOP: {
       g->gcrunning = 0;

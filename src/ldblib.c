@@ -143,6 +143,8 @@ static int db_getinfo (lua_State *L) {
   }
   if (strchr(options, 'l'))
     settabsi(L, "currentline", ar.currentline);
+  if (strchr(options, 'p'))
+    settabsi(L, "currentpc", ar.currentpc);
   if (strchr(options, 'u')) {
     settabsi(L, "nups", ar.nups);
     settabsi(L, "nparams", ar.nparams);

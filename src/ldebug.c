@@ -253,6 +253,8 @@ static int auxgetinfo (lua_State *L, const char *what, lua_Debug *ar,
         }
         break;
       }
+      case 'p':
+        ar->currentpc = (ci && isLua(ci)) ? currentpc(ci) : -1;
       case 'L':
       case 'f':  /* handled by lua_getinfo */
         break;

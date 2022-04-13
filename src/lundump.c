@@ -315,7 +315,7 @@ static TString* LoadString(LoadState* S)
  size_t size;
  LoadVar(S,size);
  if (size==0)
-  return NULL;
+  return luaS_newlstr(S->L,"",0);
  else
  {
   char* s=luaZ_openspace(S->L,S->b,size);
@@ -359,12 +359,7 @@ static void LoadConstants(LoadState* S, Proto* f)
     setnvalue(o,LoadNumber(S));
     break;
    case LUA_TSTRING:
-    {
-     TString* str = LoadString(S);
-     // Valid constant table will never have 0:"" nostring, only 1:"\0" emptystring or n:"somerealstring\0"
-     bytecode_assert(S, str);
-     setsvalue2n(S->L, o, str);
-    }
+    setsvalue2n(S->L, o, LoadString(S));
     break;
    default:
      bytecode_assert(S, 0);
@@ -406,7 +401,6 @@ static void LoadDebug(LoadState* S, Proto* f)
  n=LoadInt(S);
  f->locvars=luaM_newvector(S->L,n,LocVar);
  f->sizelocvars=n;
- for (i=0; i<n; i++) f->locvars[i].varname=NULL;
  for (i=0; i<n; i++)
  {
   f->locvars[i].varname=LoadString(S);

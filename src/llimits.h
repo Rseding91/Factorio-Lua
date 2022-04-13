@@ -247,7 +247,7 @@ typedef lu_int32 Instruction;
 
 #define luai_hashnum(i,n) { int e;  \
   n = frexp(n, &e) * (lua_Number)(INT_MAX - DBL_MAX_EXP);  \
-  lua_number2int(i, n); i += e; }
+  if (isinf(n)) i = INT_MAX; else lua_number2int(i, n); i += e; }
 
 #endif
 
@@ -267,7 +267,7 @@ typedef lu_int32 Instruction;
 #define condchangemem(L)	condmovestack(L)
 #else
 #define condchangemem(L)  \
-	((void)(!(G(L)->gcrunning) || (luaC_fullgc(L, 0), 1)))
+	((void)(!(G(L)->gcrunning) || (G(L)->gcblocked) || (luaC_fullgc(L, 0), 1)))
 #endif
 
 #endif
