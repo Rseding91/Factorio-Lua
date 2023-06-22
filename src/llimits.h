@@ -238,7 +238,14 @@ typedef lu_int32 Instruction;
     (((u) <= (lua_Unsigned)INT_MAX) ? (lua_Number)(int)(u) : (lua_Number)(u))
 #endif
 
-
+#ifdef NINTENDO_SWITCH
+//workaround for the undefined behaviors causing problems with the implementation below.
+//This is taken from MS_ASMTRICK part of this original file
+union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
+#define luai_hashnum(i,n)  \
+  { volatile union luai_Cast u; u.l_d = (n) + 1.0;  /* avoid -0 */ \
+    (i) = u.l_p[0]; (i) += u.l_p[1]; }  /* add double bits for his hash */
+#endif
 
 #if defined(ltable_c) && !defined(luai_hashnum)
 
