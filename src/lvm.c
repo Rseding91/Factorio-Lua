@@ -769,7 +769,7 @@ void luaV_execute (lua_State *L) {
         }
       )
       vmcase(OP_FORLOOP,
-        if (!ttisnumber(ra+1) | !ttisnumber(ra)) /* not checking ra+2, because I don't see way how to exploit it not being number */
+        if (!ttisnumber(ra+2) || !ttisnumber(ra+1) || !ttisnumber(ra))
           luaG_runerror(L, LUA_QL("for") " bytecode error, control variables need to be numbers");
         lua_Number step = nvalue(ra+2);
         lua_Number idx = luai_numadd(L, nvalue(ra), step); /* increment index */

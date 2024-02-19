@@ -119,18 +119,21 @@ static const char *findlocal (lua_State *L, CallInfo *ci, int n,
                               StkId *pos) {
   const char *name = NULL;
   StkId base;
+  StkId limit = (ci == L->ci) ? L->top : ci->next->func;
   if (isLua(ci)) {
     if (n < 0)  /* access to vararg values? */
       return findvararg(ci, -n, pos);
     else {
       base = ci->u.l.base;
-      name = luaF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
+      if (limit - base >= n && n > 0)  /* is 'n' inside 'ci' stack? */
+        name = luaF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
+      else
+        return NULL;  /* no name */
     }
   }
   else
     base = ci->func + 1;
   if (name == NULL) {  /* no 'standard' name? */
-    StkId limit = (ci == L->ci) ? L->top : ci->next->func;
     if (limit - base >= n && n > 0)  /* is 'n' inside 'ci' stack? */
       name = "(*temporary)";  /* generic name for any valid slot */
     else

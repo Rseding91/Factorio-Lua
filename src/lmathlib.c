@@ -84,16 +84,17 @@ static double custom_atan(double x)
 {
   // Taken from http://golang.org/src/pkg/math/atan.go
 
-  if (x == 0)
-    return x;
-  else if (x > 0)
+  if (x > 0)
     return custom_satan(x);
-  else
+  if (x < 0)
     return -custom_satan(-x);
+  return x;
 }
 
 static double custom_atan2(double y, double x)
 {
+  if (isnan(y) || isnan(x))
+    return NAN;
   if (x > 0)
     return custom_atan(y / x);
   else if (x < 0)

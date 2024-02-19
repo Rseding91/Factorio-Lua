@@ -309,21 +309,27 @@ static const char *generic_reader (lua_State *L, void *ud, size_t *size) {
 }
 
 
+/*
+** Loads a chunk and pushes an executer function to the stack. If the loading
+** resulted in an error, pushes nil and an error string. Standard Lua 5.2 allows
+** loading strings containing either Lua code or precompiled bytecode, but
+** bytecode loading has been removed due to it being the entry point for many
+** security vulnerabilities.
+*/
 static int luaB_load (lua_State *L) {
   int status;
   size_t l;
   const char *s = lua_tolstring(L, 1, &l);
-  const char *mode = luaL_optstring(L, 3, "bt");
   int env = (!lua_isnone(L, 4) ? 4 : 0);  /* 'env' index or 0 if no 'env' */
   if (s != NULL) {  /* loading a string? */
     const char *chunkname = luaL_optstring(L, 2, s);
-    status = luaL_loadbufferx(L, s, l, chunkname, mode);
+    status = luaL_loadbufferx(L, s, l, chunkname, "t"); /* always text mode */
   }
   else {  /* loading from a reader function */
     const char *chunkname = luaL_optstring(L, 2, "=(load)");
     luaL_checktype(L, 1, LUA_TFUNCTION);
     lua_settop(L, RESERVEDSLOT);  /* create reserved slot */
-    status = lua_load(L, generic_reader, NULL, chunkname, mode);
+    status = lua_load(L, generic_reader, NULL, chunkname, "t"); /* always text mode */
   }
   return load_aux(L, status, env);
 }

@@ -328,6 +328,8 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
   CallInfo *ci;
   int n;  /* number of arguments (Lua) or returns (C) */
   ptrdiff_t funcr = savestack(L, func);
+  if (luaF_hasopenupval_at_or_above(L, func))
+    luaG_runerror(L, "bytecode error, cannot call stack level with open upval at that level or above");
   switch (ttype(func)) {
     case LUA_TLCF:  /* light C function */
       f = fvalue(func);

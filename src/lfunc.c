@@ -44,6 +44,10 @@ UpVal *luaF_newupval (lua_State *L) {
 }
 
 
+bool luaF_hasopenupval_at_or_above(lua_State* L, StkId level) {
+  return L->openupval != NULL && gco2uv(L->openupval)->v >= level;
+}
+
 UpVal *luaF_findupval (lua_State *L, StkId level) {
   global_State *g = G(L);
   GCObject **pp = &L->openupval;
