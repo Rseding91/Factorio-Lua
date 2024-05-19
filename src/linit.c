@@ -44,7 +44,6 @@ static const luaL_Reg loadedlibs[] = {
   {LUA_STRLIBNAME, luaopen_string},
   {LUA_BITLIBNAME, luaopen_bit32},
   {LUA_MATHLIBNAME, luaopen_math},
-  {LUA_DBLIBNAME, luaopen_debug},
   {NULL, NULL}
 };
 
@@ -57,13 +56,25 @@ static const luaL_Reg preloadedlibs[] = {
 };
 
 
-LUALIB_API void luaL_openlibs (lua_State *L) {
+LUALIB_API void luaL_openlibs (lua_State *L, int loadFullDebug) {
   const luaL_Reg *lib;
   /* call open functions from 'loadedlibs' and set results to global table */
   for (lib = loadedlibs; lib->func; lib++) {
     luaL_requiref(L, lib->name, lib->func, 1);
     lua_pop(L, 1);  /* remove lib */
   }
+
+  if (loadFullDebug)
+  {
+    luaL_requiref(L, LUA_DBLIBNAME, luaopen_fulldebug, 1);
+    lua_pop(L, 1);  /* remove lib */
+  }
+  else
+  {
+    luaL_requiref(L, LUA_DBLIBNAME, luaopen_partialdebug, 1);
+    lua_pop(L, 1);  /* remove lib */
+  }
+
   /* add open functions from 'preloadedlibs' into 'package.preload' table */
   luaL_getsubtable(L, LUA_REGISTRYINDEX, "_PRELOAD");
   for (lib = preloadedlibs; lib->func; lib++) {

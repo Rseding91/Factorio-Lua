@@ -376,7 +376,7 @@ static int db_traceback (lua_State *L) {
 }
 
 
-static const luaL_Reg dblib[] = {
+static const luaL_Reg full_dblib[] = {
   {"debug", db_debug},
   {"getuservalue", db_getuservalue},
   {"gethook", db_gethook},
@@ -396,9 +396,19 @@ static const luaL_Reg dblib[] = {
   {NULL, NULL}
 };
 
+static const luaL_Reg partial_dblib[] = {
+  {"getinfo", db_getinfo},
+  {"traceback", db_traceback},
+  {NULL, NULL}
+};
 
-LUAMOD_API int luaopen_debug (lua_State *L) {
-  luaL_newlib(L, dblib);
+LUAMOD_API int luaopen_fulldebug (lua_State *L) {
+  luaL_newlib(L, full_dblib);
+  return 1;
+}
+
+LUAMOD_API int luaopen_partialdebug (lua_State *L) {
+  luaL_newlib(L, partial_dblib);
   return 1;
 }
 
