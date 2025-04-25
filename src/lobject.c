@@ -119,7 +119,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
   lua_Number r = 0.0;
   int e = 0, i = 0;
   int neg = 0;  /* 1 if number is negative */
-  *endptr = cast(char *, s);  /* nothing is valid yet */
+  *endptr = lua_cast(char *, s);  /* nothing is valid yet */
   while (lisspace(cast_uchar(*s))) s++;  /* skip initial spaces */
   neg = isneg(&s);  /* check signal */
   if (!(*s == '0' && (*(s + 1) == 'x' || *(s + 1) == 'X')))  /* check '0x' */
@@ -133,7 +133,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
   if (i == 0 && e == 0)
     return 0.0;  /* invalid format (no digit) */
   e *= -4;  /* each fractional digit divides value by 2^-4 */
-  *endptr = cast(char *, s);  /* valid up to here */
+  *endptr = lua_cast(char *, s);  /* valid up to here */
   if (*s == 'p' || *s == 'P') {  /* exponent part? */
     int exp1 = 0;
     int neg1;
@@ -146,7 +146,7 @@ static lua_Number lua_strx2number (const char *s, char **endptr) {
     if (neg1) exp1 = -exp1;
     e += exp1;
   }
-  *endptr = cast(char *, s);  /* valid up to here */
+  *endptr = lua_cast(char *, s);  /* valid up to here */
  ret:
   if (neg) r = -r;
   return ldexp(r, e);
@@ -193,7 +193,7 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
       }
       case 'c': {
         char buff;
-        buff = cast(char, va_arg(argp, int));
+        buff = lua_cast(char, va_arg(argp, int));
         pushstr(L, &buff, 1);
         break;
       }

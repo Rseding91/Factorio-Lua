@@ -114,7 +114,7 @@ static int luaB_setmetatable (lua_State *L) {
   luaL_checktype(L, 1, LUA_TTABLE);
   if (t != LUA_TNIL && t != LUA_TTABLE)
   {
-    const char* msg = lua_pushfstring(L, "nil or table expected got %s", lua_typename(L, 2));
+    const char* msg = lua_pushfstring(L, "nil or table expected got %s", lua_typename(L, lua_type(L, 2)));
     luaL_argerror(L, 2, msg);
   }
   if (luaL_getmetafield(L, 1, "__metatable"))

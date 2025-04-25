@@ -517,7 +517,7 @@ static l_noret resume_error (lua_State *L, const char *msg, StkId firstArg) {
 */
 static void resume (lua_State *L, void *ud) {
   int nCcalls = L->nCcalls;
-  StkId firstArg = cast(StkId, ud);
+  StkId firstArg = lua_cast(StkId, ud);
   CallInfo *ci = L->ci;
   if (nCcalls >= LUAI_MAXCCALLS)
     resume_error(L, "C stack overflow", firstArg);
@@ -662,7 +662,7 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
 static void f_parser (lua_State *L, void *ud) {
   int i;
   Closure *cl;
-  struct SParser *p = cast(struct SParser *, ud);
+  struct SParser *p = lua_cast(struct SParser *, ud);
   int c = zgetc(p->z);  /* read first character */
   if (c == LUA_SIGNATURE[0]) {
     checkmode(L, p->mode, "binary");

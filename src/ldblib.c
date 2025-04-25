@@ -41,7 +41,7 @@ static int db_setmetatable (lua_State *L) {
   int t = lua_type(L, 2);
   if (t != LUA_TNIL && t != LUA_TTABLE)
   {
-    const char* msg = lua_pushfstring(L, "nil or table expected got %s", lua_typename(L, 2));
+    const char* msg = lua_pushfstring(L, "nil or table expected got %s", lua_typename(L, lua_type(L, 2)));
     luaL_argerror(L, 2, msg);
   }
   lua_settop(L, 2);
@@ -370,7 +370,7 @@ static int db_traceback (lua_State *L) {
     lua_pushvalue(L, arg + 1);  /* return it untouched */
   else {
     int level = luaL_optint(L, arg + 2, (L == L1) ? 1 : 0);
-    luaL_traceback(L, L1, msg, level);
+    luaL_traceback(L, L1, msg, level, NULL);
   }
   return 1;
 }

@@ -49,7 +49,7 @@
 */
 #if !defined(luai_makeseed)
 #include <time.h>
-#define luai_makeseed()		cast(size_t, time(NULL))
+#define luai_makeseed()		lua_cast(size_t, time(NULL))
 #endif
 
 
@@ -75,7 +75,7 @@ typedef struct LG {
 
 
 
-#define fromstate(L)	(cast(LX *, cast(lu_byte *, (L)) - offsetof(LX, l)))
+#define fromstate(L)	(lua_cast(LX *, lua_cast(lu_byte *, (L)) - offsetof(LX, l)))
 
 
 /*
@@ -84,7 +84,7 @@ typedef struct LG {
 ** randomness..
 */
 #define addbuff(b,p,e) \
-  { size_t t = cast(size_t, e); \
+  { size_t t = lua_cast(size_t, e); \
     memcpy(buff + p, &t, sizeof(t)); p += sizeof(t); }
 
 static unsigned int makeseed (lua_State *L) {
@@ -286,7 +286,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
   lua_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
+  LG *l = lua_cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;

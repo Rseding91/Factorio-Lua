@@ -56,7 +56,7 @@
 ** standard negative debt for GC; a reasonable "time" to wait before
 ** starting a new cycle
 */
-#define stddebtest(g,e)	(-cast(l_mem, (e)/PAUSEADJ) * g->gcpause)
+#define stddebtest(g,e)	(-lua_cast(l_mem, (e)/PAUSEADJ) * g->gcpause)
 #define stddebt(g)	stddebtest(g, gettotalbytes(g))
 
 
@@ -100,7 +100,7 @@ static void reallymarkobject (global_State *g, GCObject *o);
 /*
 ** one after last element in a hash array
 */
-#define gnodelast(h)	gnode(h, cast(size_t, sizenode(h)))
+#define gnodelast(h)	gnode(h, lua_cast(size_t, sizenode(h)))
 
 
 /*
@@ -221,7 +221,7 @@ void luaC_checkupvalcolor (global_State *g, UpVal *uv) {
 GCObject *luaC_newobj (lua_State *L, int tt, size_t sz, GCObject **list,
                        int offset) {
   global_State *g = G(L);
-  char *raw = cast(char *, luaM_newobject(L, novariant(tt), sz));
+  char *raw = lua_cast(char *, luaM_newobject(L, novariant(tt), sz));
   GCObject *o = obj2gco(raw + offset);
   if (list == NULL)
     list = &g->allgc;  /* standard list for collectable objects */
@@ -790,7 +790,7 @@ static void checkSizes (lua_State *L) {
   global_State *g = G(L);
   if (g->gckind != KGC_EMERGENCY) {  /* do not change sizes in emergency */
     int hs = g->strt.size / 2;  /* half the size of the string table */
-    if (g->strt.nuse < cast(lu_int32, hs))  /* using less than that half? */
+    if (g->strt.nuse < lua_cast(lu_int32, hs))  /* using less than that half? */
       luaS_resize(L, hs);  /* halve its size */
     luaZ_freebuffer(L, &g->buff);  /* free concatenation buffer */
   }

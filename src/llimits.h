@@ -98,12 +98,12 @@ typedef LUAI_UACNUMBER l_uacNumber;
 #endif
 
 
-#define cast(t, exp)	((t)(exp))
+#define lua_cast(t, exp)	((t)(exp))
 
-#define cast_byte(i)	cast(lu_byte, (i))
-#define cast_num(i)	cast(lua_Number, (i))
-#define cast_int(i)	cast(int, (i))
-#define cast_uchar(i)	cast(unsigned char, (i))
+#define cast_byte(i)	lua_cast(lu_byte, (i))
+#define cast_num(i)	lua_cast(lua_Number, (i))
+#define cast_int(i)	lua_cast(int, (i))
+#define cast_uchar(i)	lua_cast(unsigned char, (i))
 
 
 /*

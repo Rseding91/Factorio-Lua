@@ -114,15 +114,17 @@ static int countlevels (lua_State *L) {
 
 
 LUALIB_API void luaL_traceback (lua_State *L, lua_State *L1,
-                                const char *msg, int level) {
+                                const char *msg, int level, const struct CallInfo* stopat) {
   lua_Debug ar;
   int top = lua_gettop(L);
   int numlevels = countlevels(L1);
-  int mark = (numlevels > LEVELS1 + LEVELS2) ? LEVELS1 : 0;
+  int mark = (numlevels > LEVELS1 + LEVELS2 && !stopat) ? LEVELS1 : 0;
   if (msg) lua_pushfstring(L, "%s\n", msg);
   lua_pushliteral(L, "stack traceback:");
   while (lua_getstack(L1, level++, &ar)) {
-    if (level == mark) {  /* too many levels? */
+    if (ar.i_ci == stopat) {
+      break;
+    } else if (level == mark) {  /* too many levels? */
       lua_pushliteral(L, "\n\t...");  /* add a '...' */
       level = numlevels - LEVELS2;  /* and skip to last ones */
     }
@@ -153,7 +155,7 @@ LUALIB_API void luaL_traceback (lua_State *L, lua_State *L1,
 LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
   lua_Debug ar;
   if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
-    return luaL_error(L, "bad argument #%d of %d (%s)", narg < 0 ? narg + lua_gettop(L) + 1 : narg, lua_gettop(L), extramsg);
+    return luaL_error(L, "bad argument #%d of %d (%s)", lua_absindex(L, narg), lua_gettop(L), extramsg);
   lua_getinfo(L, "n", &ar);
   if (strcmp(ar.namewhat, "method") == 0) {
     narg--;  /* do not count `self' */
@@ -162,10 +164,18 @@ LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
   }
   if (ar.name == NULL)
     ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : "?";
-  return luaL_error(L, "bad argument #%d of %d to " LUA_QS " (%s)",
-                        narg < 0 ? narg + lua_gettop(L) + 1 : narg, lua_gettop(L), ar.name, extramsg);
+  return luaL_error(L, "bad argument #%d of %d to " LUA_QS " (%s)", lua_absindex(L, narg), lua_gettop(L), ar.name, extramsg);
 }
 
+LUALIB_API int luaL_argcounterror(lua_State *L, const char *msg) {
+  lua_Debug ar;
+  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+    return luaL_error(L, "Arguments count error: %s", msg);
+  lua_getinfo(L, "n", &ar);
+  if (ar.name == NULL)
+    ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : "?";
+  return luaL_error(L, "Arguments count error for " LUA_QS ": %s", ar.name, msg);
+}
 
 static int typeerror (lua_State *L, int narg, const char *tname) {
   const char *msg = lua_pushfstring(L, "%s expected, got %s",

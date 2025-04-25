@@ -12,6 +12,7 @@
 #pragma comment(linker, "/export:luaL_addstring")
 #pragma comment(linker, "/export:luaL_addvalue")
 #pragma comment(linker, "/export:luaL_argerror")
+#pragma comment(linker, "/export:luaL_argcounterror")
 #pragma comment(linker, "/export:luaL_buffinit")
 #pragma comment(linker, "/export:luaL_buffinitsize")
 #pragma comment(linker, "/export:luaL_callmeta")

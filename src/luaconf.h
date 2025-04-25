@@ -19,6 +19,11 @@
 */
 
 
+#ifndef NDEBUG
+  #include <assert.h>
+  #define lua_assert(e) assert(e)
+#endif
+
 /*
 @@ LUA_ANSI controls the use of non-ansi features.
 ** CHANGE it (define it) if you want Lua to avoid the use of any

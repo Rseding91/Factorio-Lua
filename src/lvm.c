@@ -114,7 +114,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
     const TValue *tm;
     if (ttistable(t)) {  /* `t' is a table? */
       Table *h = hvalue(t);
-      const TValue *res = luaH_get(L, h, key); /* do a primitive get */
+      const TValue *res = luaH_get(NULL, h, key); /* do a primitive get */
       if (!ttisnil(res) ||  /* result is not nil? */
           (tm = fasttm(L, h->metatable, TM_INDEX)) == NULL) { /* or no TM? */
         setobj2s(L, val, res);
@@ -140,7 +140,7 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
     const TValue *tm;
     if (ttistable(t)) {  /* `t' is a table? */
       Table *h = hvalue(t);
-      TValue *oldval = cast(TValue *, luaH_get(L, h, key));
+      TValue *oldval = lua_cast(TValue *, luaH_get(L, h, key));
       /* if previous value is not nil, there must be a previous entry
          in the table; moreover, a metamethod has no relevance */
       if (!ttisnil(oldval) ||
@@ -343,6 +343,10 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       Table *h = hvalue(rb);
       tm = fasttm(L, h->metatable, TM_LEN);
       if (tm) break;  /* metamethod? break switch to call it */
+#ifdef DEBUG
+      // if (luaH_getn(h) != luaH_size(h, false))
+      //   luaG_runerror(L, "table_size and #x are not equal");
+#endif
       setnvalue(ra, cast_num(luaH_getn(h)));  /* else primitive len */
       return;
     }

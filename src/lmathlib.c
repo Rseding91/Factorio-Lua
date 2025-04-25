@@ -258,8 +258,8 @@ static double custom_log(double x)
   k = 0;
   if (hx < 0x00100000) {			/* x < 2**-1022  */
     if (((hx & 0x7fffffff) | lx) == 0)
-      return -two54 / zero;		/* log(+-0)=-inf */
-    if (hx < 0) return (x - x) / zero;	/* log(-#) = NaN */
+      return -INFINITY;		/* log(+-0)=-inf */
+    if (hx < 0) return NAN;	/* log(-#) = NaN */
     k -= 54; x *= two54; /* subnormal number, scale up x */
     GET_HIGH_WORD(hx, x);
   }
@@ -325,8 +325,8 @@ static double custom_log10(double x)
   k = 0;
   if (hx < 0x00100000) {                  /* x < 2**-1022  */
     if (((hx & 0x7fffffff) | lx) == 0)
-      return -two54 / zero;             /* log(+-0)=-inf */
-    if (hx < 0) return (x - x) / zero;        /* log(-#) = NaN */
+      return -INFINITY;             /* log(+-0)=-inf */
+    if (hx < 0) return NAN;        /* log(-#) = NaN */
     k -= 54; x *= two54; /* subnormal number, scale up x */
     GET_HIGH_WORD(hx, x);
   }

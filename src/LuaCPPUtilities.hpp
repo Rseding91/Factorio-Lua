@@ -14,6 +14,6 @@ inline void lua_getfield(lua_State* L, int idx, const std::string& k)
 inline void lua_setfield(lua_State* L, int idx, const std::string& k)
 { lua_setlfield(L, idx, k.c_str(), k.size()); }
 
-template<class T>
-inline std::enable_if_t<!std::is_same_v<T, lua_Number>> lua_pushnumber(lua_State* L, T value)
+template<class T> requires (!std::is_same_v<T, lua_Number>)
+inline void lua_pushnumber(lua_State* L, T value)
 { lua_pushnumber(L, lua_Number(value)); }

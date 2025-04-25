@@ -33,6 +33,7 @@ LUALIB_API int (luaL_getmetafield) (lua_State *L, int obj, const char *e);
 LUALIB_API int (luaL_callmeta) (lua_State *L, int obj, const char *e);
 LUALIB_API const char *(luaL_tolstring) (lua_State *L, int idx, size_t *len);
 LUALIB_API int (luaL_argerror) (lua_State *L, int numarg, const char *extramsg);
+LUALIB_API int (luaL_argcounterror) (lua_State *L, const char *msg);
 LUALIB_API const char *(luaL_checklstring) (lua_State *L, int numArg,
                                                           size_t *l);
 LUALIB_API const char *(luaL_optlstring) (lua_State *L, int numArg,
@@ -93,7 +94,7 @@ LUALIB_API void (luaL_setfuncs) (lua_State *L, const luaL_Reg *l, int nup);
 LUALIB_API int (luaL_getsubtable) (lua_State *L, int idx, const char *fname);
 
 LUALIB_API void (luaL_traceback) (lua_State *L, lua_State *L1,
-                                  const char *msg, int level);
+                                  const char *msg, int level, const struct CallInfo* stopat);
 
 LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
                                  lua_CFunction openf, int glb);

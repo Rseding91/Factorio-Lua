@@ -125,7 +125,7 @@ static TString *newshrstr (lua_State *L, const char *str, size_t l,
   GCObject **list;  /* (pointer to) list where it will be inserted */
   stringtable *tb = &G(L)->strt;
   TString *s;
-  if (tb->nuse >= cast(lu_int32, tb->size) && tb->size <= MAX_INT/2)
+  if (tb->nuse >= lua_cast(lu_int32, tb->size) && tb->size <= MAX_INT/2)
     luaS_resize(L, tb->size*2);  /* too crowded */
   list = &tb->hash[lmod(h, tb->size)];
   s = createstrobj(L, str, l, LUA_TSHRSTR, h, list);
@@ -187,6 +187,7 @@ Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {
   u->uv.len = s;
   u->uv.metatable = NULL;
   u->uv.env = e;
+  u->uv.factorioBindableObject = NULL;
   return u;
 }
 

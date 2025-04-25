@@ -844,15 +844,15 @@ void luaK_posfix (FuncState *fs, BinOpr op,
     }
     case OPR_ADD: case OPR_SUB: case OPR_MUL: case OPR_DIV:
     case OPR_MOD: case OPR_POW: {
-      codearith(fs, cast(OpCode, op - OPR_ADD + OP_ADD), e1, e2, line);
+      codearith(fs, lua_cast(OpCode, op - OPR_ADD + OP_ADD), e1, e2, line);
       break;
     }
     case OPR_EQ: case OPR_LT: case OPR_LE: {
-      codecomp(fs, cast(OpCode, op - OPR_EQ + OP_EQ), 1, e1, e2);
+      codecomp(fs, lua_cast(OpCode, op - OPR_EQ + OP_EQ), 1, e1, e2);
       break;
     }
     case OPR_NE: case OPR_GT: case OPR_GE: {
-      codecomp(fs, cast(OpCode, op - OPR_NE + OP_EQ), 0, e1, e2);
+      codecomp(fs, lua_cast(OpCode, op - OPR_NE + OP_EQ), 0, e1, e2);
       break;
     }
     default: lua_assert(0);

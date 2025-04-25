@@ -83,7 +83,7 @@ static Node *hashnum (const Table *t, lua_Number n) {
   int i;
   luai_hashnum(i, n);
   if (i < 0) {
-    if (cast(unsigned int, i) == 0u - i)  /* use unsigned to avoid overflows */
+    if (lua_cast(unsigned int, i) == 0u - i)  /* use unsigned to avoid overflows */
       i = 0;  /* handle INT_MIN */
     i = -i;  /* must be a positive value */
   }
@@ -246,7 +246,7 @@ static void setarrayvector (lua_State *L, Table *t, int size) {
 static void setnodevector (lua_State *L, Table *t, int size) {
   int lsize;
   if (size == 0) {  /* no elements to hash part? */
-    t->node = cast(Node *, dummynode);  /* use common `dummynode' */
+    t->node = lua_cast(Node *, dummynode);  /* use common `dummynode' */
     lsize = 0;
   }
   else {
@@ -306,7 +306,7 @@ void luaH_resize (lua_State *L, Table *t, int nasize, int nhsize) {
     n = n->next;
   }
   if (!isdummy(nold))
-    luaM_freearray(L, nold, cast(size_t, twoto(oldhsize))); /* free old array */
+    luaM_freearray(L, nold, lua_cast(size_t, twoto(oldhsize))); /* free old array */
 }
 
 
@@ -392,7 +392,7 @@ Table *luaH_new (lua_State *L) {
 
 void luaH_free (lua_State *L, Table *t) {
   if (!isdummy(t->node))
-    luaM_freearray(L, t->node, cast(size_t, sizenode(t)));
+    luaM_freearray(L, t->node, lua_cast(size_t, sizenode(t)));
   luaM_freearray(L, t->array, t->sizearray);
   luaM_free(L, t);
 }
@@ -479,6 +479,20 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
 }
 
 
+const TValue *luaH_getinthash (Table *t, int key) {
+  lua_Number nk = cast_num(key);
+  Node *n = hashnum(t, nk);
+  do {  /* check whether `key' is somewhere in the chain */
+    if (ttisnumber(gkey(n)) && luai_numeq(nvalue(gkey(n)), nk))
+    {
+      checknilnode(t, n);
+      return gval(n);  /* that's it */
+    }
+    else n = gnext(n);
+  } while (n);
+  return luaO_nilobject;
+}
+
 /*
 ** search function for integers
 * If L is NULL, then the caller promisses that they won't try to write to the value.
@@ -489,7 +503,7 @@ const TValue *luaH_getint (lua_State *L, Table *t, int key) {
       if (L)
         rehash(L, t, key);
       else
-        return luaO_nilobject;
+        return luaH_getinthash(t, key);
     }
 
     lua_assert(key >=1 && key <= t->sizearray);
@@ -497,17 +511,7 @@ const TValue *luaH_getint (lua_State *L, Table *t, int key) {
   }
   else {
     lua_assert(key < 1 || key > MAXASIZE);
-    lua_Number nk = cast_num(key);
-    Node *n = hashnum(t, nk);
-    do {  /* check whether `key' is somewhere in the chain */
-      if (ttisnumber(gkey(n)) && luai_numeq(nvalue(gkey(n)), nk))
-      {
-        checknilnode(t, n);
-        return gval(n);  /* that's it */
-      }
-      else n = gnext(n);
-    } while (n);
-    return luaO_nilobject;
+    return luaH_getinthash(t, key);
   }
 }
 
@@ -571,7 +575,7 @@ const TValue *luaH_get (lua_State *L, Table *t, const TValue *key) {
 TValue *luaH_set (lua_State *L, Table *t, const TValue *key) {
   const TValue *p = luaH_get(L, t, key);
   if (p != luaO_nilobject)
-    return cast(TValue *, p);
+    return lua_cast(TValue *, p);
   else return luaH_newkey(L, t, key);
 }
 
@@ -580,7 +584,7 @@ void luaH_setint (lua_State *L, Table *t, int key, TValue *value) {
   const TValue *p = luaH_getint(L, t, key);
   TValue *cell;
   if (p != luaO_nilobject)
-    cell = cast(TValue *, p);
+    cell = lua_cast(TValue *, p);
   else {
     TValue k;
     setnvalue(&k, cast_num(key));
@@ -700,7 +704,7 @@ static int unbound_search (Table *t, unsigned int j) {
   while (!ttisnil(luaH_getint(NULL, t, j))) {
     i = j;
     j *= 2;
-    if (j > cast(unsigned int, MAX_INT)) {  /* overflow? */
+    if (j > lua_cast(unsigned int, MAX_INT)) {  /* overflow? */
       /* table was built with bad purposes: resort to linear search */
       i = 1;
       while (!ttisnil(luaH_getint(NULL, t, i))) i++;

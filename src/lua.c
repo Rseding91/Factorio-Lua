@@ -85,24 +85,7 @@
 
 
 
-static lua_State *globalL = NULL;
-
 static const char *progname = LUA_PROGNAME;
-
-
-
-static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);
-  luaL_error(L, "interrupted!");
-}
-
-
-static void laction (int i) {
-  signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
-                              terminate process (default action) */
-  lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
-}
 
 
 static void print_usage (const char *badoption) {
@@ -160,7 +143,7 @@ static void finalreport (lua_State *L, int status) {
 static int traceback (lua_State *L) {
   const char *msg = lua_tostring(L, 1);
   if (msg)
-    luaL_traceback(L, L, msg, 1);
+    luaL_traceback(L, L, msg, 1, NULL);
   else if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
     if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
       lua_pushliteral(L, "(no error message)");
@@ -174,10 +157,7 @@ static int docall (lua_State *L, int narg, int nres) {
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, traceback);  /* push traceback function */
   lua_insert(L, base);  /* put it under chunk and args */
-  globalL = L;  /* to be available to 'laction' */
-  signal(SIGINT, laction);
   status = lua_pcall(L, narg, nres, base);
-  signal(SIGINT, SIG_DFL);
   lua_remove(L, base);  /* remove traceback function */
   return status;
 }

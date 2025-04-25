@@ -183,7 +183,7 @@ static void new_localvar (LexState *ls, TString *name) {
                   MAXVARS, "local variables");
   luaM_growvector(ls->L, dyd->actvar.arr, dyd->actvar.n + 1,
                   dyd->actvar.size, Vardesc, MAX_INT, "local variables");
-  dyd->actvar.arr[dyd->actvar.n++].idx = cast(short, reg);
+  dyd->actvar.arr[dyd->actvar.n++].idx = lua_cast(short, reg);
 }
 
 
