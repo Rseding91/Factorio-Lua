@@ -545,6 +545,12 @@ static void open_func (LexState *ls, FuncState *fs, BlockCnt *bl) {
   /* anchor table of constants (to avoid being collected) */
   sethvalue2s(L, L->top, fs->h);
   incr_top(L);
+
+  fs->tempstrings = luaH_new(L);
+  /* anchor table (to avoid being collected) */
+  sethvalue2s(L, L->top, fs->tempstrings);
+  incr_top(L);
+
   enterblock(fs, bl, 0);
 }
 
@@ -572,6 +578,7 @@ static void close_func (LexState *ls) {
   /* last token read was anchored in defunct function; must re-anchor it */
   anchor_token(ls);
   L->top--;  /* pop table of constants */
+  L->top--;  /* pop table of temp strings */
   luaC_checkGC(L);
 }
 

@@ -123,17 +123,22 @@ l_noret luaX_syntaxerror (LexState *ls, const char *msg) {
 */
 TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
   lua_State *L = ls->L;
-  TValue *o;  /* entry for `str' */
+  lua_checkstack(L, 1);
   TString *ts = luaS_newlstr(L, str, l);  /* create new string */
-  setsvalue2s(L, L->top++, ts);  /* temporarily anchor it in stack */
-  o = luaH_set(L, ls->fs->h, L->top - 1);
-  if (ttisnil(o)) {  /* not in use yet? (see 'addK') */
-    /* boolean value does not need GC barrier;
-       table has no metatable, so it does not need to invalidate cache */
-    setbvalue(o, 1);  /* t[string] = true */
-    luaC_checkGC(L);
+  setsvalue2s(L, L->top, ts);  /* temporarily anchor it in stack */
+  incr_top(L);
+
+  const TValue* value = luaH_get(L, ls->fs->tempstrings, L->top - 1);
+  if (!ttisnil(value)) { /* The string already exists */
+    L->top--; /* remove temp string from stack */
+    return rawtsvalue(lua_cast(TValue*, value)); /* use the existing value - which may be a different TString than the one we just created. */
   }
-  L->top--;  /* remove string from stack */
+
+  /* string did not exist in the table - add it */
+  TValue* newValue = luaH_newkey(L, ls->fs->tempstrings, L->top - 1);
+  setsvalue(L, newValue, ts); /* t[string] = string */
+  luaC_checkGC(L);
+  L->top--;  /* remove temp string from stack */
   return ts;
 }
 

@@ -96,6 +96,7 @@ struct BlockCnt;  /* defined in lparser.c */
 typedef struct FuncState {
   Proto *f;  /* current function header */
   Table *h;  /* table to find (and reuse) elements in `k' */
+  Table *tempstrings;  /* table so temp strings don't get collected */
   struct FuncState *prev;  /* enclosing function */
   struct LexState *ls;  /* lexical state */
   struct BlockCnt *bl;  /* chain of current blocks */
